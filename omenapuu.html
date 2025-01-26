@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omenapuu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        #word {
+            font-size: 1.5rem;
+            letter-spacing: 10px;
+            margin: 20px 0;
+        }
+
+        #message {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #e63946;
+        }
+
+        #letters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .letter {
+            background-color: #457b9d;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .letter:hover {
+            background-color: #1d3557;
+        }
+
+        .letter:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #tree-container {
+            margin: 20px auto;
+            width: 200px;
+            height: 300px;
+            position: relative;
+            background-color: #c7bdf3;
+            border-radius: 10px;
+        }
+
+        .tree-trunk {
+            margin: 20px auto;
+            width: 50px;
+            height: 200px;
+            position: relative;
+            background-color: #8b4513;
+            border-radius: 10px;
+        }
+
+        .tree {
+            position: absolute;
+            background-color: #228b22;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+        }
+
+        .apple {
+            position: absolute;
+            background-color: #f71414;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            background-color: #2a9d8f;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #21867a;
+        }
+    </style>
+</head>
+<body>
+    <h1>Omenapuu</h1>
+    <div id="word">_ _ _ _ _</div>
+    <div id="message"></div>
+    <div id="letters"></div>
+    <div id="tree-container">
+        <div class="tree-trunk" style="top: 100px; left: 0px;"></div>
+
+        <div class="tree" style="top: 25px; left: 70px;"></div>
+        <div class="tree" style="top: 100px; left: 20px;"></div>
+        <div class="tree" style="top: 30px; left: 0px;"></div>
+        <div class="tree" style="top: 100px; left: 80px;"></div>
+        <div class="tree" style="top: 60px; left: 90px;"></div>
+
+        <div class="apple" style="top: 55px; left: 60px;"></div>
+        <!--<div class="apple" style="top: 50px; left: 120px;"></div>-->
+        <div class="apple" style="top: 110px; left: 40px;"></div>
+        <div class="apple" style="top: 90px; left: 140px;"></div>
+        <!--<div class="apple" style="top: 140px; left: 80px;"></div>-->
+        <div class="apple" style="top: 150px; left: 120px;"></div>
+    </div>
+    <div id="hangman">Väärät arvaukset: 0/4</div>
+    <button id="reset">Aloita alusta</button>
+
+    <script>
+        const words = ["TESTI NIMI"];
+        let chosenWord = "";
+        let guessedWord = [];
+        let wrongGuesses = 0;
+        const maxWrongGuesses = 4;
+        
+        const wordElement = document.getElementById("word");
+        const messageElement = document.getElementById("message");
+        const lettersElement = document.getElementById("letters");
+        const hangmanElement = document.getElementById("hangman");
+        const resetButton = document.getElementById("reset");
+        const apples = document.querySelectorAll(".apple");
+
+        function initializeGame() {
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            guessedWord = chosenWord.split("").map(char => (char === " " ? " " : "_"));
+            wrongGuesses = 0;
+
+            updateWordDisplay();
+            messageElement.textContent = "";
+            hangmanElement.textContent = `Väärät arvaukset: 0/${maxWrongGuesses}`;
+            createLetterButtons();
+            resetTreeVisual();
+        }
+
+        function updateWordDisplay() {
+            wordElement.textContent = guessedWord.join(" ");
+        }
+
+        function createLetterButtons() {
+            lettersElement.innerHTML = "";
+            const letters = [
+                ...Array(26).fill(0).map((_, i) => String.fromCharCode(65 + i)), // A-Z
+                "Ä", "Ö", "Å" // Finnish-specific letters
+            ];
+            
+            letters.forEach(letter => {
+                const button = document.createElement("button");
+                button.textContent = letter;
+                button.classList.add("letter");
+                button.addEventListener("click", () => handleGuess(letter, button));
+                lettersElement.appendChild(button);
+            });
+        }
+        function handleGuess(letter, button) {
+            button.disabled = true;
+
+            if (chosenWord.includes(letter)) {
+                for (let i = 0; i < chosenWord.length; i++) {
+                    if (chosenWord[i] === letter) {
+                        guessedWord[i] = letter;
+                    }
+                }
+                updateWordDisplay();
+
+                if (!guessedWord.includes("_")) {
+                    messageElement.textContent = "Onneksi olkoon! Voitit pelin!";
+                    disableAllButtons();
+                }
+            } else {
+                wrongGuesses++;
+                hangmanElement.textContent = `Väärät arvaukset: ${wrongGuesses}/${maxWrongGuesses}`;
+                updateTreeVisual();
+
+                if (wrongGuesses >= maxWrongGuesses) {
+                    messageElement.textContent = `Omenasi loppuivat, Hävisit!`;
+                    disableAllButtons();
+                }
+            }
+        }
+
+        function disableAllButtons() {
+            const buttons = document.querySelectorAll(".letter");
+            buttons.forEach(button => button.disabled = true);
+        }
+
+        function resetTreeVisual() {
+            apples.forEach(apple => apple.style.display = "block");
+        }
+
+        function updateTreeVisual() {
+            if (wrongGuesses <= apples.length) {
+                apples[wrongGuesses - 1].style.display = "none";
+            }
+        }
+
+        resetButton.addEventListener("click", initializeGame);
+
+        initializeGame();
+    </script>
+</body>
+</html>
