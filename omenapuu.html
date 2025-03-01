@@ -131,7 +131,7 @@
         <div class="apple" style="top: 150px; left: 120px;"></div>
     </div>
     <div id="hangman">Väärät arvaukset: 0/4</div>
-    <button id="reset">Aloita alusta</button>
+    <button hidden id="reset">Aloita alusta</button>
 
     <script>
         const words = ["SAKU ANTERO"];
@@ -201,6 +201,7 @@
                 if (wrongGuesses >= maxWrongGuesses) {
                     messageElement.textContent = `Omenasi loppuivat, Hävisit!`;
                     disableAllButtons();
+                    document.getElementById('reset').removeAttribute('hidden');
                 }
             }
         }
