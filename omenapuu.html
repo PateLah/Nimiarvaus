@@ -148,7 +148,7 @@
         const apples = document.querySelectorAll(".apple");
 
         function initializeGame() {
-            document.getElementById('reset').style.visibility = 'hidden';
+            document.getElementById('reset').toggleAttribute('hidden');
             chosenWord = words[Math.floor(Math.random() * words.length)];
             guessedWord = chosenWord.split("").map(char => (char === " " ? " " : "_"));
             wrongGuesses = 0;
