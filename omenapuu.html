@@ -131,7 +131,7 @@
         <div class="apple" style="top: 150px; left: 120px;"></div>
     </div>
     <div id="hangman">Väärät arvaukset: 0/4</div>
-    <button hidden id="reset">Aloita alusta</button>
+    <button id="reset">Aloita alusta</button>
 
     <script>
         const words = ["SAKU ANTERO"];
@@ -151,7 +151,7 @@
             chosenWord = words[Math.floor(Math.random() * words.length)];
             guessedWord = chosenWord.split("").map(char => (char === " " ? " " : "_"));
             wrongGuesses = 0;
-
+            document.getElementById('buttonId').style.visibility = 'hidden';
             updateWordDisplay();
             messageElement.textContent = "";
             hangmanElement.textContent = `Väärät arvaukset: 0/${maxWrongGuesses}`;
